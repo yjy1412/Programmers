@@ -1,92 +1,48 @@
 function solution(expression) {
-  // console.log(expression);
-  // 1. 연산자 집합 = (+, -, *)
-  // 2. 결과값이 음수라면, 해당 값은 절댓값으로 변환한 값이 반영된다.
-
-
-  // 1. expression 내에서 연산자를 뽑아낸다.
-  const regex = /\D/g
+  // 1. 현재 사용되는 연산자 확인
+  const regex = /(\D)/g;
   const operations = [...new Set(expression.match(regex))];
-  // console.log(operations);
   
-  // 2. 가능한 연산자 순서의 조합은 만든다.
+  // 2. 사용되는 연산자로 선택가능한 순열조합 계산
   let cases = [];
   const cal_permutation = (operations, bucket) => {
-    if (operations.length === 0) {
-      cases.push(bucket);
-    }
-    for (let i = 0; i < operations.length; i++) {
-      const pick1 = operations[i]
-      const others = [...operations.slice(0,i), ...operations.slice(i+1)]
-      cal_permutation(others, bucket.concat(pick1))
-    }
+      if (operations.length === 0) {
+          cases.push(bucket);
+      }
+      for (let i = 0; i < operations.length; i++) {
+          const pick1 = operations[i]
+          const others = [...operations.slice(0,i), ...operations.slice(i+1)]
+          cal_permutation(others, bucket.concat(pick1))
+      }
   }
   cal_permutation(operations, []);
-  // console.log(cases);
-
-  // 1. 해당 연산자 양 옆의 숫자를 뽑는다.
-  // const example = "100+200+100+300"
-  // const operation = "+"
-  // const regex2 = new RegExp(`\\d\{1\,3\}\\${operation}\\d\{1\,3\}`, "g");
-  // const temp = example.match(regex2);
-  // console.log(temp);
   
-  // 2. 뽑은 두 숫자의 해당 연산자로 계산한 결과를 반영한다.
-  // const temp = example.replace(regex2, (result) => {
-  //   const nums = result.split(operation);
-  //   return nums.reduce((sum, el) => Number(sum) + Number(el));
-  // })
-  // console.log(temp);
-
-  // 해당하는 연산자 양 옆의 숫자를 연산한 결과를 반영하는 알고리즘
-  const findAndOperate = (operation, expression) => {
-    const regex = new RegExp(`\-\?\\d\{1\,\}\\${operation}\-\?\\d\{1\,\}`);
-    const result = expression.replace(regex, matched => {
-      //console.log("matched", matched);
-      const first = matched[0];
-      const nums = matched.split(operation).map(el => Number(el));
-      // console.log("nums", nums)
-      
-      if (operation === "+") { return nums[0] + nums[1]}
-      else if (operation === "-") { 
-        if (nums.length > 2) {
-          return nums[1] - nums[2]
-        }
-        return nums[0] - nums[1]
-      }
-      else { return nums[0] * nums[1]}
-    })
-    // console.log("result", result);
-    return result;
-  }
-  // const temp = "100-200*-700";
-  // const operation = "*"
-  // console.log(findAndOperate(operation, temp))
+  // 3. expression 문자열에서 숫자와 연산자를 구분하여 리스트 정리
+  const split = expression.split(regex);
+  console.log(split);
   
-  // 3. 위의 과정을 반복한다.
   let result = 0;
   for (let i = 0; i < cases.length; i++) {
-    const caseOne = cases[i];
-    let temp = expression
-    for (let j = 0; j < caseOne.length; j++) {
-      const operation = caseOne[j];
-      // 해당 연산을 수행한다.
-      let prev = temp;
-      let isChanged = true;
-      while(isChanged === true) {
-        const now = findAndOperate(operation, prev);
-        if (prev === now) { isChanged = false; }
-        else { prev = now; }
+      const caseOne = cases[i];
+      let temp = split.slice();
+      for (let j = 0; j < caseOne.length; j++) {
+          const operator = caseOne[j];
+          while(temp.includes(operator)) {
+              // 1. 일치하는 연산자를 split 배열에서 찾는다.
+              const idx = temp.indexOf(operator);
+              
+              // 2. 해당 연산자 인덱스 앞뒤 숫자를 해당 연산자로 계산한다.
+              const num1 = temp[idx-1];
+              const num2 = temp[idx+1];
+              const val = eval(num1+operator+num2);
+              
+              // 3. 그 값을 반영하여 temp에 기록한다.
+              temp = [...temp.slice(0,idx-1), val, ...temp.slice(idx+2)]
+          }
       }
-      temp = prev;
-    }
-    // 모든 연산이 끝났을 때 절댓값을 구해준다.
-    // console.log("temp", temp);
-    const val = Math.abs(Number(temp));
-    // 해당 값이 기존의 결과값보다 크다면 이를 갱신해준다.
-    result = Math.max(val, result);
+      const absVal = Math.abs(temp[0]);
+      result = Math.max(absVal, result);
   }
-  // 4. 결과를 리턴한다.
   return result;
 }
 const expression = "100-200*300-500+20";
