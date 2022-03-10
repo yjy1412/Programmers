@@ -42,16 +42,16 @@ function solution(info, query) {
 
   function bst(nums, target) {
     let start = 0;
-    let end = nums.length - 1;
-    let mid = Math.floor((start + end) / 2);
-    while (start <= end) {
-      if (target === nums[mid]) { return mid };
-      if (target > nums[mid]) { start = mid + 1 }
-      if (target < nums[mid]) { end = mid - 1 }
-      mid = Math.floor((start + end) / 2);
+    let end = nums.length;
+    while (start < end) {
+        const mid = Math.floor((start + end) / 2);
+        if (nums[mid] >= target) {
+            end = mid;
+        } else if (nums[mid] < target) {
+            start = mid + 1;
+        }
     }
-    // nums배열내에 찾고자 하는 값과 일치하는 값이 없다면
-    return start
+    return start;
   }
   const temp = [3, 4, 5];
   // console.log("bst result: ", bst(temp, 10))
