@@ -1,36 +1,67 @@
 function solution(info, query) {
-  // 각 스트링 배열을 2차원 배열로 변환한다.
-  const infoArr = info.map(el => el.split(" "));
-  const queryArr = query.map(el => el.split(" ").filter(el => el !== "and"));
-  // console.log(infoArr, queryArr);
+  // info 데이터를 해시구조로 만든다.
+  const infoObj = {};
+  info.forEach(el => {
+    const split = el.split(" ");
+    const score = Number(split.pop());
+    const key = split.join("");
 
-  // infoArr에 query를 던지는 반복루프를 만든다.
-  const result = [];
-  for (let i = 0; i < queryArr.length; i++) {
-    const queryOne = queryArr[i];
+    if (infoObj[key]) { infoObj[key].push(score) }
+    else { infoObj[key] = [score] }
+  })
+  // console.log(infoObj)
 
-    let filtered = [...infoArr];
-    // console.log(filtered)
-    for (let col = 0; col < queryOne.length; col++) {
-      const filterVal = queryOne[col]
-      // 만약, filterVal가 "-"라면 해당 쿼리는 넘어간다.
-      if (filterVal === "-") { continue };
-
-      // 쿼리를 만족하는 지원자 레코드를 뽑아낸다.
-      filtered = filtered.filter(row => {
-        if (col === 4) { return Number(row[col]) >= Number(filterVal) }
-        return row[col] === filterVal
-      });
-    }
-    result.push(filtered.length);
+  // info 각 키별로 score 리스트를 오름차순으로 정렬한다.
+  for (let key in infoObj) {
+    infoObj[key].sort((a, b) => a - b)
   }
-  return result;
+  // console.log(infoObj);
+
+  // query 리스트를 가져온다
+  const keys = Object.keys(infoObj);
+
+  const answer = [];
+  query.forEach(q => {
+    const queryArr = q.split(" ").filter(el => {
+      return el !== "and" && el !== "-"
+    });
+    const score = Number(queryArr.pop())
+    // console.log(queryArr)
+
+    const filtered = keys.filter(key => queryArr.every(val => key.includes(val)));
+    // console.log("filter", filtered)
+
+    let temp = 0;
+    if (filtered.length !== 0) {
+      filtered.forEach(key => {
+        temp += infoObj[key].length - bst(infoObj[key], score);
+      })
+    }
+    answer.push(temp);
+  })
+
+  function bst(nums, target) {
+    let start = 0;
+    let end = nums.length - 1;
+    let mid = Math.floor((start + end) / 2);
+    while (start <= end) {
+      if (target === nums[mid]) { return mid };
+      if (target > nums[mid]) { start = mid + 1 }
+      if (target < nums[mid]) { end = mid - 1 }
+      mid = Math.floor((start + end) / 2);
+    }
+    // nums배열내에 찾고자 하는 값과 일치하는 값이 없다면
+    return start
+  }
+  const temp = [3, 4, 5];
+  // console.log("bst result: ", bst(temp, 10))
+  return answer;
 }
 
 // [ 테스트 코드 ]
-const info = ["java backend junior pizza 150","python frontend senior chicken 210","python frontend senior chicken 150","cpp backend senior pizza 260","java backend junior chicken 80","python backend senior chicken 50"];
-const query = ["java and backend and junior and pizza 100","python and frontend and senior and chicken 200","cpp and - and senior and pizza 250","- and backend and senior and - 150","- and - and - and chicken 100","- and - and - and - 150"];
-const test = [1,1,1,1,2,4];
+const info = ["java backend junior pizza 150", "python frontend senior chicken 210", "python frontend senior chicken 150", "cpp backend senior pizza 260", "java backend junior chicken 80", "python backend senior chicken 50"];
+const query = ["java and backend and junior and pizza 100", "python and frontend and senior and chicken 200", "cpp and - and senior and pizza 250", "- and backend and senior and - 150", "- and - and - and chicken 100", "- and - and - and - 150"];
+const test = [1, 1, 1, 1, 2, 4];
 
 const isComplete = (result) => {
   if (JSON.stringify(result) === JSON.stringify(test)) {
