@@ -1,5 +1,5 @@
 function solution(name) {
-  
+
   // 1. 왼쪽으로 갈지, 오른쪽으로 갈지 결정한다.
   // 1-1. 알파벳 A-Z까지를 만든다.
   const map = [];
@@ -29,7 +29,7 @@ function solution(name) {
   // 2. 본격적으로 탐색하며, 이동횟수를 계산한다.
   let idx = 0;
   let result = 0;
-  while(indexMap.includes(1)) {
+  while (indexMap.includes(1)) {
     // 현재 위치에서 알파벳을 변경한다.
     const letter = name[idx];
     result += moveUpdown(letter);
@@ -45,9 +45,11 @@ function solution(name) {
   return result;
 
   function moveSide(cur, map) {
+    if (!map.includes(1)) { return [0, 0] }
     // 좌/우로 움직였을때, 다음으로 이동해야할 인덱스 정보를 담는다.
     // 0 인덱스에는 좌로 움직였을때의 다음 인덱스, 1 인덱스에는 우로 움직였을때의 다음 인덱스 정보를 담는다.
-    const temp = [0,0];
+    // 2 인덱스는 방향(좌/우)를 나타내며, 0일경우 좌, 1일경우 우를 의미한다.
+    const temp = [0, 0];
     // 좌로 움직일때의 거리를 구한다.
     // 1. 현재위치에서 첫 인덱스(0)까지 탐색하며 1인 경우를 찾는다.
     let leftDistance = 0;
@@ -61,7 +63,7 @@ function solution(name) {
     }
     // 2. 1의 범위에서 찾지 못했다면, 마지막 인덱스부터 1인 경우를 찾는다.
     if (leftDistance === 0) {
-      for (let i = len-1; i > cur; i--) {
+      for (let i = len - 1; i > cur; i--) {
         if (map[i] === 1) {
           leftDistance += cur + len - i
           temp[0] = i;
@@ -69,9 +71,6 @@ function solution(name) {
         }
       }
     }
-    // 좌로 움직였을때, 1인 값은 찾지못했다면, 모두 찾았음을 의미하므로 함수를 종료시킨다.
-    if (leftDistance === 0) { return temp }
-    
     // 우로 움질일때의 거리를 구한다.
     // 1. 현재위치에서 마지막인덱스까지를 탐색하며 1인 경우를 찾는다.
     let rightDistance = 0;
@@ -93,12 +92,25 @@ function solution(name) {
       }
     }
     // 좌/우의 거리를 비교하여 다음으로 이동할 인덱스와 최소 이동횟수를 반환한다.
-    if (leftDistance >= rightDistance) {
+    if (leftDistance < rightDistance) {
+      return [leftDistance, temp[0]]
+    } else if (leftDistance > rightDistance) {
       return [rightDistance, temp[1]]
+    } else {
+      // 두 거리가 같으면서, 지칭하는 인덱스 또한 같은 경우, 임의로 하나를 결정한다.
+      if (temp[0] === temp[1]) { return [leftDistance, temp[0]] }
+      
+      // 두 거리가 같지만, 지칭하는 인덱스가 다른 경우, 그 다음 이동거리를 계산해본다.
+      const mapForLeft = map.slice();
+      const mapForRight = map.slice();
+      mapForLeft[temp[0]] = 0;
+      mapForRight[temp[1]] = 0;
+      const [leftDis] = moveSide(temp[0], mapForLeft);
+      const [rightDis] = moveSide(temp[1], mapForRight);
+      return leftDis < rightDis ? [leftDistance, temp[0]] : [rightDistance, temp[1]]
     }
-    return [leftDistance, temp[0]]
   }
-  console.log("dis",moveSide(2, indexMap));
+  console.log("dis", moveSide(2, indexMap));
 
   // 2. 위로 움직일지, 아래로 움직일지 결정하며, 그에따른 이동횟수를 반환한다.
   function moveUpdown(str) {
@@ -110,5 +122,5 @@ function solution(name) {
   console.log(moveUpdown("Z"))
 }
 
-const name = "AAANN"
+const name = "BBBAAAAAAAB"
 console.log(solution(name));
