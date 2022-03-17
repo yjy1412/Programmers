@@ -6,7 +6,7 @@ function solution(m, n, board) {
   // [ 인접한 4개의 블록값이 같은 경우, 해당 블록의 인덱스를 찾는 로직 ]
   const findSame4Blocks = () => {
     const result = [];
-    for (let row = 0; row < board.length - 2; row++) {
+    for (let row = 0; row < board.length - 1; row++) {
       const record = board[row];
       for (let col = 0; col < record.length; col++) {
         const val = record[col];
@@ -21,8 +21,8 @@ function solution(m, n, board) {
     }
     return result;
   }
-  /* const blocks = findSame4Blocks();
-  console.log(blocks) */
+  // const blocks = findSame4Blocks();
+  // console.log(blocks)
 
   // [ 인접한 4개 블록을 제거하는 로직 ]
   let blocks;
@@ -44,8 +44,8 @@ function solution(m, n, board) {
     }
     return count;
   }
-  /* deleteSame4Blocks();
-  console.log(board) */
+  // deleteSame4Blocks();
+  // console.log(board)
 
   // [ 제거된 후 위에 있는 블록을 아래로 내리는 로직 ]
   const fallingAfterDelete = () => {
@@ -83,8 +83,8 @@ function solution(m, n, board) {
       }
     }
   }
-  /* fallingAfterDelete();
-  console.log(board) */
+  // fallingAfterDelete();
+  // console.log(board)
 
   // [ main ]
   const main = (count) => {
